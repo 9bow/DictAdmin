@@ -11,9 +11,11 @@ var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var app = express();
 const model = require("./models");
+const dictUtil = require("./controllers/dict/util");
 
 // ROUTEs
 var indexRouter = require("./routes/index");
+var dictRouter = require("./routes/dict");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Express Settings
@@ -41,32 +43,14 @@ Object.keys(model).forEach(modelName => {
     });
 });
 
-const lineReader = require("line-reader");
-
-lineReader.eachLine("./dic.word", function(line, last) {
-  var elements = line.split("\t");
-
-  var token = elements[0];
-  var attrs = elements.slice(1, elements.length);
-
-  var result = [];
-
-  attrs.forEach(attr => {
-    attr = attr.split(":");
-    var pos = attr[0];
-    var tf = attr[1];
-
-    // console.log(token, pos, tf);
-    model.Dict.create({ token, pos, tf });
-  });
-});
+dictUtil.importDict("./dic.word");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Routes
 ////////////////////////////////////////////////////////////////////////////////
 
 app.use("/", indexRouter);
-// app.use("/users", usersRouter);
+app.use("/dict,", dictRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
