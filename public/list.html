@@ -780,22 +780,19 @@
 <!-- page script -->
 <script>
   $(function () {
-    $('#dictTable').DataTable({
-      'paging'      : true,
-      'lengthChange': false,
-      'searching'   : false,
-      'ordering'    : false,
-      'info'        : true,
-      'autoWidth'   : false,
-      "processing": true,
-        "serverSide": true,
-        "ajax": "/dict/list",
-        columns: [
-          {data: 'token'},
-          {data: 'pos'},
-          {data: 'tf'}
-    ]
-    })
+    $("#dictTable").DataTable({
+      paging: true,
+      lengthChange: false,
+      searching: true,
+      ordering: false,
+      info: true,
+      autoWidth: true,
+      processing: true,
+      serverSide: true,
+      ajax: "/dict/list",
+      columns: [{ data: "token" }, { data: "pos" }, { data: "tf" }]
+    });
+
   })
 </script>
 </body>

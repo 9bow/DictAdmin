@@ -34,16 +34,16 @@ app.use(cookieParser());
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// // Truncate All Tables
-// Object.keys(model).forEach(modelName => {
-//   if (modelName.toLowerCase() !== "sequelize")
-//     model[modelName].destroy({
-//       where: {},
-//       truncate: true
-//     });
-// });
+// Truncate All Tables
+Object.keys(model).forEach(modelName => {
+  if (modelName.toLowerCase() !== "sequelize")
+    model[modelName].destroy({
+      where: {},
+      truncate: true
+    });
+});
 
-// dictUtil.importDict("./dic.word");
+dictUtil.importDict("./dic.word");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Routes
