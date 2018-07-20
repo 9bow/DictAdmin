@@ -1,6 +1,7 @@
+const fs = require("fs");
 const model = require("../../models");
 const Sequelize = require("sequelize");
-const posTable = require("../../config/pos.json");
+const dictUtil = require("./util");
 const Op = Sequelize.Op;
 
 exports.isExist = function(req, res) {
@@ -68,6 +69,7 @@ exports.getList = function(req, res) {
     raw: true
   };
 
+  // Query
   model.Dict.findAll(queryOption).then(itemData => {
     model.Dict.count(queryOption).then(countTotal => {
       res.send({
@@ -115,4 +117,40 @@ exports.delItem = function(req, res) {
   }).then(result => {
     res.send({ result });
   });
+};
+
+exports.exportToFile = function(req, res) {
+  try {
+    var tmpFilename = "./tmpDict.word";
+    var file = fs.createWriteStream(tmpFilename);
+
+    file.on("error", function(err) {
+      throw err;
+    });
+
+    var queryString = `SELECT \
+        token || '\t' || GROUP_CONCAT(pos || ':' ||  tf, '\t') AS item \
+      FROM \
+        DICTS \
+      GROUP BY \
+        token \
+      ORDER BY \
+        token`;
+
+    model.sequelize.query(queryString, { type: model.sequelize.QueryTypes.SELECT }).then(result => {
+      result.forEach(function(data) {
+        file.write(data.item + "\n");
+      });
+      file.end();
+      file.on("finish", function() {
+        res.download(tmpFilename, "dic.word"); // Set disposition and send it.
+      });
+    });
+  } catch (err) {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+
+    res.status(500);
+    res.render("error");
+  }
 };

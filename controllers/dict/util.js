@@ -24,7 +24,7 @@ exports.importDict = function(filename) {
         items.push({ token, pos, tf });
       });
     }).then(() => {
-      console.log("read file - done : " + items.length + " items");
+      console.log("read file - done w/ " + items.length + " items");
       model.Dict.bulkCreate(items, { logging: false }).then(() => {
         console.log("insert items - done");
       });

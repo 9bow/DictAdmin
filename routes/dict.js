@@ -8,5 +8,6 @@ router.get("/list", dict.getList);
 router.put("/:id/tf", dict.updateTf);
 router.put("/:id/pos", dict.updatePos);
 router.delete("/:id", dict.delItem);
+router.get("/download", dict.exportToFile);
 
 module.exports = router;
