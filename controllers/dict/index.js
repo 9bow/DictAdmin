@@ -1,5 +1,7 @@
 const model = require("../../models");
 const Sequelize = require("sequelize");
+const posTable = require("../../config/pos.json");
+const Op = Sequelize.Op;
 
 exports.isExist = function(req, res) {
   var token = req.params.token;
@@ -24,44 +26,59 @@ exports.isExist = function(req, res) {
   });
 };
 
+// Get list
 exports.getList = function(req, res) {
-  console.log(typeof req.query.search.value);
-  console.log(req.query.search.value);
+  var queryOption = {};
+  var whereClause = {};
 
-  if (req.query.search.value === "") {
-    whereClause = {};
-  } else {
-    whereClause = { token: { like: "%" + req.query.search.value + "%" } };
-  }
-  model.Dict.findAll({
-    attributes: ["token", "pos", "tf"],
-    where: whereClause,
-    order: [["token", "ASC"], ["pos", "ASC"]],
-    limit: req.query.length,
-    offset: req.query.start,
-    raw: true
-  }).then(itemData => {
-    model.Dict.count({}).then(countTotal => {
-      // search keyword exists
-      if (req.query.search.value !== "") {
-        model.Dict.count({ where: whereClause }).then(countFiltered => {
-          res.send({
-            draw: req.query.draw,
-            recordsTotal: countTotal,
-            recordsFiltered: countFiltered,
-            data: itemData
-          });
-        });
-      }
-      // search keyword does not exists
-      else {
-        res.send({
-          draw: req.query.draw,
-          recordsTotal: countTotal,
-          recordsFiltered: countTotal,
-          data: itemData
-        });
+  // Build Where Clause
+  if (req.query.filters && req.query.filters.length > 0) {
+    req.query.filters.forEach(filterItem => {
+      switch (filterItem.type) {
+        case "like":
+          whereClause[filterItem.field] = { [Op.like]: "%" + filterItem.value + "%" };
+          break;
+        case "=":
+          whereClause[filterItem.field] = { [Op.eq]: filterItem.value };
+          break;
+        case ">=":
+          whereClause[filterItem.field] = { [Op.gte]: filterItem.value };
+          break;
+        default:
+          console.log("OTHER OPERATORS ARE NOT IMPLEMENTED YET");
       }
     });
+  }
+
+  queryOption = {
+    attributes: ["id", "token", "pos", "tf"],
+    order: [["token", "ASC"], ["pos", "ASC"]],
+    where: whereClause,
+    limit: req.query.size,
+    offset: req.query.size * (req.query.page - 1),
+    raw: true
+  };
+
+  model.Dict.findAll(queryOption).then(itemData => {
+    model.Dict.count(queryOption).then(countTotal => {
+      res.send({
+        last_page: Math.ceil(countTotal / req.query.size),
+        data: itemData
+      });
+    });
+  });
+};
+
+// Update TF value for the given token ID
+exports.updateTf = function(req, res) {
+  model.Dict.update(
+    {
+      tf: req.body.tf
+    },
+    {
+      where: { id: req.params.id }
+    }
+  ).then(result => {
+    res.send(result);
   });
 };

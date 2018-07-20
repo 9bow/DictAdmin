@@ -16,6 +16,7 @@ const dictUtil = require("./controllers/dict/util");
 // ROUTEs
 var indexRouter = require("./routes/index");
 var dictRouter = require("./routes/dict");
+var posRouter = require("./routes/pos");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Express Settings
@@ -51,6 +52,7 @@ dictUtil.importDict("./dic.word");
 
 app.use("/", indexRouter);
 app.use("/dict", dictRouter);
+app.use("/pos", posRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

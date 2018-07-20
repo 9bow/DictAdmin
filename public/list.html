@@ -8,12 +8,14 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
   <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap.min.css">
+  <!-- jQuery UI 1.12.1 -->
+  <link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="/libs/Ionicons/css/ionicons.min.css">
-  <!-- DataTables -->
-  <link rel="stylesheet" href="/libs/datatables.net-bs/css/dataTables.bootstrap.min.css">
+  <!-- Tabulator 3.5 -->
+  <link rel="stylesheet" href="/libs/tabulator/dist/css/tabulator.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="/css/AdminLTE.min.css">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -508,8 +510,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Data Tables
-        <small>advanced tables</small>
+        사전
+        <small>Dictionary</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -525,26 +527,11 @@
 
           <div class="box">
             <div class="box-header">
-              <h3 class="box-title">Hover Data Table</h3>
+              <h3 class="box-title">Dictionary</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="dictTable" class="table table-bordered table-hover">
-                  <thead>
-                      <tr>
-                          <th>token</th>
-                          <th>pos</th>
-                          <th>tf</th>
-                      </tr>
-                  </thead>
-                  <tfoot>
-                      <tr>
-                          <th>token</th>
-                          <th>pos</th>
-                          <th>tf</th>
-                      </tr>
-                  </tfoot>
-              </table>
+              <div id="dictTable" class="table table-bordered table-hover"></div>
             </div>
             <!-- /.box-body -->
           </div>
@@ -764,11 +751,12 @@
 
 <!-- jQuery 3 -->
 <script src="/libs/jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.12.1 -->
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
-<!-- DataTables -->
-<script src="/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="/libs/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<!-- Tabulator -->
+<script src="/libs/tabulator/dist/js/tabulator.min.js"></script>
 <!-- SlimScroll -->
 <script src="/libs/jquery-slimscroll/jquery.slimscroll.min.js"></script>
 <!-- FastClick -->
@@ -779,20 +767,96 @@
 <script src="/js/demo.js"></script>
 <!-- page script -->
 <script>
-  $(function () {
-    $("#dictTable").DataTable({
-      paging: true,
-      lengthChange: false,
-      searching: true,
-      ordering: false,
-      info: true,
-      autoWidth: true,
-      processing: true,
-      serverSide: true,
-      ajax: "/dict/list",
-      columns: [{ data: "token" }, { data: "pos" }, { data: "tf" }]
-    });
+  var posTable = {};
 
+  $(function () {
+    var getPosTable = function() {
+      var deferred = $.Deferred();
+      $.get({
+        url: "/pos",
+        success: function(result) {
+          posTable = result
+          deferred.resolve(posTable)
+        },
+        error: function(result) {
+          deferred.reject(result);
+        }
+      });
+      return deferred.promise();
+    }
+
+    getPosTable().done(() => {
+      $("#dictTable").tabulator({
+        ajaxURL: "/dict/list",
+        ajaxSorting: true,
+        ajaxFiltering: true,
+
+        pagination: "remote",
+        paginationSize: 25,
+
+        selectable: true,
+        layout: "fitColumns",
+
+        initialSort:[
+          {
+            column: "token",
+            dir: "asc"
+          },
+        ],
+
+        columns:[
+          {
+            title: "ID",
+            field: "id",
+            visible: false
+          },
+          {
+            title: "단어",
+            field: "token",
+            align: "center",
+            sorter: "string",
+            headerFilter: "input",
+            headerFilterPlaceholder: "검색어를 입력해주세요."
+          },
+          {
+            title: "품사",
+            field: "pos",
+            align: "center",
+            formatter: "lookup",
+            formatterParams: posTable,
+            sorter: "string",
+            headerFilter: "input",
+            headerFilterFunc: "=",
+            headerFilterPlaceholder: "품사를 선택해주세요."
+          },
+          {
+            title: "빈도",
+            field: "tf",
+            align: "center",
+            sorter: "number",
+            headerFilter: "number",
+            headerFilterFunc: ">=",
+            headerFilterPlaceholder: "기준 빈도(최소값)를 입력해주세요",
+            editor: "input",
+            validator: ["required", "min:0", "numeric"],
+            cellEdited: function(item) {
+              $.post({
+                url: "/dict/"+ item.cell.row.data.id +"/tf",
+                data: { tf: item.cell.row.data.tf },
+                dataType: "json",
+                success: function (result) {
+                  if (!result[0])
+                    alert("수정 중 에러가 발생했습니다. (DICT-E0)");
+                },
+                error: function() {
+                  alert("수정 중 에러가 발생했습니다. (DICT-E1)");
+                }
+              });
+            }
+          }
+        ],
+      });
+    });
   })
 </script>
 </body>
