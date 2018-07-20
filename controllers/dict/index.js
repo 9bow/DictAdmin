@@ -82,3 +82,19 @@ exports.updateTf = function(req, res) {
     res.send(result);
   });
 };
+
+// Update POS value for the given token ID
+exports.updatePos = function(req, res) {
+  console.log(req.body);
+  console.log(req.params);
+  model.Dict.update(
+    {
+      pos: req.body.pos
+    },
+    {
+      where: { id: req.params.id }
+    }
+  ).then(result => {
+    res.send(result);
+  });
+};

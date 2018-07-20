@@ -5,6 +5,7 @@ var dict = require("../controllers/dict");
 
 router.get("/check/:token/:pos", dict.isExist);
 router.get("/list", dict.getList);
-router.post("/:id/tf", dict.updateTf);
+router.put("/:id/tf", dict.updateTf);
+router.put("/:id/pos", dict.updatePos);
 
 module.exports = router;

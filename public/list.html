@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/libs/Ionicons/css/ionicons.min.css">
   <!-- Tabulator 3.5 -->
   <link rel="stylesheet" href="/libs/tabulator/dist/css/tabulator.min.css">
+  <link rel="stylesheet" href="/libs/tabulator/dist/css/bootstrap/tabulator_bootstrap.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="/css/AdminLTE.min.css">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -792,7 +793,7 @@
         ajaxFiltering: true,
 
         pagination: "remote",
-        paginationSize: 25,
+        paginationSize: 20,
 
         selectable: true,
         layout: "fitColumns",
@@ -824,10 +825,26 @@
             align: "center",
             formatter: "lookup",
             formatterParams: posTable,
+            editor:"select",
+            editorParams: posTable,
             sorter: "string",
-            headerFilter: "input",
-            headerFilterFunc: "=",
-            headerFilterPlaceholder: "품사를 선택해주세요."
+            headerFilter: true,
+            headerFilterParams: posTable,
+            cellEdited: function(item) {
+              $.ajax({
+                method: "PUT",
+                url: "/dict/"+ item.cell.row.data.id +"/pos",
+                data: { pos: item.cell.row.data.pos },
+                dataType: "json",
+                success: function (result) {
+                  if (!result[0])
+                    alert("수정 중 에러가 발생했습니다. (ERR_DICT_E_POS_0)");
+                },
+                error: function() {
+                  alert("수정 중 에러가 발생했습니다. (ERR_DICT_E_POS_1)");
+                }
+              });
+            }
           },
           {
             title: "빈도",
@@ -840,16 +857,17 @@
             editor: "input",
             validator: ["required", "min:0", "numeric"],
             cellEdited: function(item) {
-              $.post({
+              $.ajax({
+                method: "PUT",
                 url: "/dict/"+ item.cell.row.data.id +"/tf",
                 data: { tf: item.cell.row.data.tf },
                 dataType: "json",
                 success: function (result) {
                   if (!result[0])
-                    alert("수정 중 에러가 발생했습니다. (DICT-E0)");
+                    alert("수정 중 에러가 발생했습니다. (ERR_DICT_E_TF_0)");
                 },
                 error: function() {
-                  alert("수정 중 에러가 발생했습니다. (DICT-E1)");
+                  alert("수정 중 에러가 발생했습니다. (ERR_DICT_E_TF_1)");
                 }
               });
             }
