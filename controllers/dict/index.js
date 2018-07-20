@@ -30,6 +30,7 @@ exports.isExist = function(req, res) {
 exports.getList = function(req, res) {
   var queryOption = {};
   var whereClause = {};
+  var orderClause = [];
 
   // Build Where Clause
   if (req.query.filters && req.query.filters.length > 0) {
@@ -50,9 +51,17 @@ exports.getList = function(req, res) {
     });
   }
 
+  // Build Order Clause
+  if (req.query.sorters && req.query.sorters.length > 0) {
+    req.query.sorters.forEach(sorterItem => {
+      orderClause.push([sorterItem.field, sorterItem.dir]);
+    });
+  }
+
+  // Build Query Options
   queryOption = {
     attributes: ["id", "token", "pos", "tf"],
-    order: [["token", "ASC"], ["pos", "ASC"]],
+    order: orderClause,
     where: whereClause,
     limit: req.query.size,
     offset: req.query.size * (req.query.page - 1),
@@ -85,8 +94,6 @@ exports.updateTf = function(req, res) {
 
 // Update POS value for the given token ID
 exports.updatePos = function(req, res) {
-  console.log(req.body);
-  console.log(req.params);
   model.Dict.update(
     {
       pos: req.body.pos
@@ -96,5 +103,16 @@ exports.updatePos = function(req, res) {
     }
   ).then(result => {
     res.send(result);
+  });
+};
+
+// Delete Item by the given token ID
+exports.delItem = function(req, res) {
+  console.log(req.params);
+
+  model.Dict.destroy({
+    where: { id: req.params.id }
+  }).then(result => {
+    res.send({ result });
   });
 };

@@ -7,5 +7,6 @@ router.get("/check/:token/:pos", dict.isExist);
 router.get("/list", dict.getList);
 router.put("/:id/tf", dict.updateTf);
 router.put("/:id/pos", dict.updatePos);
+router.delete("/:id", dict.delItem);
 
 module.exports = router;

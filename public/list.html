@@ -769,6 +769,9 @@
 <!-- page script -->
 <script>
   var posTable = {};
+  var delIcon = function(value, data, cell, row, options){
+    return "<i class='fa fa-trash'></i>"
+  };
 
   $(function () {
     var getPosTable = function() {
@@ -795,7 +798,7 @@
         pagination: "remote",
         paginationSize: 20,
 
-        selectable: true,
+        selectable: false,
         layout: "fitColumns",
 
         initialSort:[
@@ -831,10 +834,11 @@
             headerFilter: true,
             headerFilterParams: posTable,
             cellEdited: function(item) {
+              data = item.getData();
               $.ajax({
                 method: "PUT",
-                url: "/dict/"+ item.cell.row.data.id +"/pos",
-                data: { pos: item.cell.row.data.pos },
+                url: "/dict/"+ data.id +"/pos",
+                data: { pos: data.pos },
                 dataType: "json",
                 success: function (result) {
                   if (!result[0])
@@ -857,10 +861,11 @@
             editor: "input",
             validator: ["required", "min:0", "numeric"],
             cellEdited: function(item) {
+              data = item.getData();
               $.ajax({
                 method: "PUT",
-                url: "/dict/"+ item.cell.row.data.id +"/tf",
-                data: { tf: item.cell.row.data.tf },
+                url: "/dict/"+ data.id +"/tf",
+                data: { tf: data.tf },
                 dataType: "json",
                 success: function (result) {
                   if (!result[0])
@@ -868,6 +873,29 @@
                 },
                 error: function() {
                   alert("수정 중 에러가 발생했습니다. (ERR_DICT_E_TF_1)");
+                }
+              });
+            }
+          },
+          {
+            title: "삭제",
+            formatter: delIcon,
+            headerSort: false,
+            width: 10,
+            align: "center",
+            cellClick: function(ev, item) {
+              item.getRow().delete();
+              data = item.getData();
+              $.ajax({
+                method: "DELETE",
+                url: "/dict/"+ data.id,
+                success: function (resp) {
+                  console.log(resp);
+                  if (!resp.result)
+                    alert("삭제 중 에러가 발생했습니다. (ERR_DICT_DEL_0)");
+                },
+                error: function() {
+                  alert("삭제 중 에러가 발생했습니다. (ERR_DICT_DEL_1)");
                 }
               });
             }
