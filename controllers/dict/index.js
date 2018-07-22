@@ -89,13 +89,17 @@ exports.updateTf = function(req, res) {
     {
       where: { id: req.params.id }
     }
-  ).then(result => {
-    if (result[0] === 1) {
-      res.send({ err: false, msg: "", success: true });
-    } else {
-      res.send({ err: true, msg: "처리 중 오류가 발생하였습니다.", success: false });
-    }
-  });
+  )
+    .then(result => {
+      if (result[0] === 1) {
+        res.send({ err: false, msg: "", success: true });
+      } else {
+        res.send({ err: true, msg: "처리 중 오류가 발생하였습니다.", success: false });
+      }
+    })
+    .catch(err => {
+      res.send({ err: true, success: false, msg: err.name });
+    });
 };
 
 // Update POS value for the given token ID
@@ -126,13 +130,19 @@ exports.updatePos = function(req, res) {
 
 // Delete Item by the given token ID
 exports.delItem = function(req, res) {
-  console.log(req.params);
-
   model.Dict.destroy({
     where: { id: req.params.id }
-  }).then(result => {
-    res.send({ result });
-  });
+  })
+    .then(result => {
+      if (result === 1) {
+        res.send({ err: false, success: true, msg: "" });
+      } else {
+        res.send({ err: true, success: false, msg: "처리 중 오류가 발생하였습니다." });
+      }
+    })
+    .catch(err => {
+      res.send({ err: true, success: false, msg: err.name });
+    });
 };
 
 exports.exportToFile = function(req, res) {
