@@ -90,7 +90,11 @@ exports.updateTf = function(req, res) {
       where: { id: req.params.id }
     }
   ).then(result => {
-    res.send(result);
+    if (result[0] === 1) {
+      res.send({ err: false, msg: "", success: true });
+    } else {
+      res.send({ err: true, msg: "처리 중 오류가 발생하였습니다.", success: false });
+    }
   });
 };
 
@@ -103,9 +107,21 @@ exports.updatePos = function(req, res) {
     {
       where: { id: req.params.id }
     }
-  ).then(result => {
-    res.send(result);
-  });
+  )
+    .then(result => {
+      if (result[0] === 1) {
+        res.send({ err: false, success: true, msg: "" });
+      } else {
+        res.send({ err: true, success: false, msg: "처리 중 오류가 발생하였습니다." });
+      }
+    })
+    .catch(err => {
+      if (err.name === "SequelizeUniqueConstraintError") {
+        res.send({ err: true, success: false, msg: "해당 품사가 이미 존재합니다." });
+      } else {
+        res.send({ err: true, success: false, msg: err.name });
+      }
+    });
 };
 
 // Delete Item by the given token ID
