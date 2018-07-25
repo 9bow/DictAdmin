@@ -185,7 +185,7 @@
       return deferred.promise();
     }
 
-    getPosTable().done(() => {
+    getPosTable().done(function() {
       $("#dictTable").tabulator({
         ajaxURL: "/dict/list",
         ajaxSorting: true,

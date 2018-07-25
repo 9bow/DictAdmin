@@ -169,7 +169,7 @@ exports.exportToFile = function(req, res) {
       });
       file.end();
       file.on("finish", function() {
-        res.download(tmpFilename, "dic.word"); // Set disposition and send it.
+        res.download(tmpFilename, "dic.word");
       });
     });
   } catch (err) {
