@@ -160,6 +160,7 @@
 <!-- page script -->
 <script>
   var posTable = {};
+  var posSearchTable = {};
   var delIcon = function(value, data, cell, row, options){
     return "<i class='fa fa-trash'></i>"
   };
@@ -175,7 +176,8 @@
         url: "/pos",
         success: function(result) {
           posTable = result;
-          posTable[''] = '[전체]';
+          posSearchTable = posTable;
+          posSearchTable[''] = '[전체]';
           deferred.resolve(posTable);
         },
         error: function(result) {
@@ -228,7 +230,7 @@
             editorParams: posTable,
             sorter: "string",
             headerFilter: true,
-            headerFilterParams: posTable,
+            headerFilterParams: posSearchTable,
             cellEdited: function(item) {
               data = item.getData();
               $.ajax({
