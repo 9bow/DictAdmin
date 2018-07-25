@@ -65,3 +65,6 @@ typings/
 # sqlite database file
 *.sqlite
 *.sqlite-journal
+
+# temp file
+tmp/*
