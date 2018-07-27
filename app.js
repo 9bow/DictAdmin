@@ -10,6 +10,7 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var app = express();
+const multer = require("multer");
 const model = require("./models");
 const dictUtil = require("./controllers/dict/util");
 
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(multer({ dest: "temp/" }).single("userDict"));
 app.use(cookieParser());
 
 ////////////////////////////////////////////////////////////////////////////////
