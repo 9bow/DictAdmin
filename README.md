@@ -12,8 +12,13 @@ DictAdmin은 [한국어 형태소 분석기 KOMORAN](https://github.com/shin285/
 * Git을 이용하여 DictAdmin 저장소를 복제합니다.
   ```sh
     git clone https://github.com/9bow/DictAdmin
+    cd DictAdmin
   ```
     * 또는, [다음 링크](https://github.com/9bow/DictAdmin/releases)에서 소스 코드를 내려받은 후 압축을 풉니다.
+* 필요한 모듈을 설치합니다.
+  ```sh
+    npm install
+  ```
 * `bin/www`을 실행합니다.
   ```sh
     node ./bin/www
