@@ -21,7 +21,7 @@ DictAdmin은 [한국어 형태소 분석기 KOMORAN](https://github.com/shin285/
   ```
 * `bin/www`을 실행합니다.
   ```sh
-    node ./bin/www
+    npm start
   ```
 * Chrome Browser를 열고 [http://localhost:3000](http://localhost:3000) 에 접속합니다.
 
