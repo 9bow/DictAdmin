@@ -68,5 +68,5 @@ typings/
 *.sqlite-journal
 
 # temp file
-tmp/*
-tmpDict.word
+temp/*
+*.word
