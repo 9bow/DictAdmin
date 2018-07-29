@@ -12,7 +12,6 @@ var morgan = require("morgan");
 var app = express();
 const multer = require("multer");
 const model = require("./models");
-const dictUtil = require("./controllers/dict/util");
 
 // ROUTEs
 var indexRouter = require("./routes/index");
@@ -45,8 +44,6 @@ Object.keys(model).forEach(modelName => {
       truncate: true
     });
 });
-
-dictUtil.importDict("./dic.word");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Routes

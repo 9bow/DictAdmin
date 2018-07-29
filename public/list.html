@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>AdminLTE 2 | Data Tables</title>
+  <title>DictAdmin for KOMORAN</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Bootstrap 3.3.7 -->
@@ -104,7 +104,7 @@
               <div class="row btn-row">
                 <div class="pull-left">
                   <div class="btn-group">
-                    <a href="/dict/download" class="btn btn-primary btn-flat"><i class="fa fa-upload"></i> 올리기</a>
+                    <button id="dictUploadBtn" class="btn btn-primary btn-flat" data-target="#dictUploadModal"><i class="fa fa-upload"></i> 올리기</button>
                   </div>
                   <div class="btn-group">
                       <a href="/dict/download" class="btn btn-primary btn-flat"><i class="fa fa-download"></i> 내려받기</a>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="pull-right">
                   <div class="btn-group">
-                      <button id="dictNewItem" type="button" class="btn btn-danger btn-flat"><i class="fa fa-plus-circle"></i> 등록</button>
+                      <button id="dictNewItemBtn" type="button" class="btn btn-danger btn-flat"><i class="fa fa-plus-circle"></i> 등록</button>
                   </div>
                 </div>
 
@@ -134,17 +134,46 @@
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <div class="pull-right hidden-xs">
-      Designed by <a href="https://adminlte.io">Almsaeed Studio</a>, </strong>  <b>AdminLTE</b> 2.4.0
+      Designed by <a href="https://adminlte.io">Almsaeed Studio</a>, <strong>AdminLTE</strong> 2.4.0
     </div>
     <a href="http://www.shineware.co.kr/products/komoran/?utm_source=dict-admin&amp;utm_medium=Referral&amp;utm_campaign=dict-admin-js-footer">KOMORAN 형태소 분석기</a>를 위해 <a href="https://github.com/9bow">9bow</a>가 개발하였습니다.
   </footer>
 </div>
 <!-- ./wrapper -->
 
+<div id="dictUploadModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dictUploadModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dictUploadModal">사전 파일 올리기</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <p>아래 버튼을 눌러 사전 파일을 올려주세요.</p>
+            <p><i class="fa fa-exclamation-triangle text-red"></i> 주의하세요! 기존 사전은 <b class="text-red">모두 삭제</b>됩니다. 기존 사전을 반드시 <a href="/dict/download"><i class="fa fa-download"></i> 내려받기</a> 해주세요.</p>
+            <input id="dictUploadFile" type="file" name="userDict" data-url="/dict/upload" title="사전 파일을 선택해주세요.">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">닫기</button>
+        <button id="dictUploadBtnInModal" type="button" class="btn btn-primary btn-flat" disabled>올리기</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 <!-- jQuery 3 -->
 <script src="/libs/jquery/jquery.min.js"></script>
 <!-- jQuery UI 1.12.1 -->
 <script src="/libs/jquery-ui/jquery-ui.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="/libs/jquery-fileupload/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="/libs/jquery-fileupload/jquery.fileupload.js"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 <!-- Tabulator -->
@@ -166,8 +195,33 @@
   };
 
   $(function () {
-    $("#dictNewItem").on("click", function() {
-      console.log("dictNewItem Clicked");
+    $("#dictUploadModal").on("hidden.bs.modal", function() {
+      $("#dictUploadBtnInModal").prop("disabled", true);
+      $("#dictUploadMesgInModal").text("");
+      $("#dictUploadFile").val("");
+    });
+
+    $("#dictUploadBtn").on("click", function() {
+      $("#dictUploadModal").modal("show");
+    });
+
+    $("#dictUploadFile").fileupload({
+      dataType: "json",
+      add: function (e, data) {
+        $("#dictUploadBtnInModal").prop("disabled", false).text("올리기")
+                                  .click(function () {
+                                    $("#dictUploadBtnInModal").prop("disabled", true).text("올리는 중...")
+                                    data.submit();
+                                  });
+      },
+      done: function (e, data) {
+        $("#dictUploadBtnInModal").prop("disabled", true).text('올리기 완료');
+        location.reload();
+      }
+    });
+
+    $("#dictNewItemBtn").on("click", function() {
+      console.log("dictNewItemBtn Clicked");
     });
 
     var getPosTable = function() {
