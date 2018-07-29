@@ -1,7 +1,6 @@
 const fs = require("fs");
 const model = require("../../models");
 const Sequelize = require("sequelize");
-const dictUtil = require("./util");
 const Op = Sequelize.Op;
 const util = require("util");
 const lineReader = require("line-reader");
