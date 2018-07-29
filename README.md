@@ -30,12 +30,14 @@ DictAdmin은 [한국어 형태소 분석기 KOMORAN](https://github.com/shin285/
 
 ### 알려진 문제
 * 문제. `FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory` 오류가 발생하며 실행을 멈춥니다.
-  * 해결. 이 문제는 주로 사전 파일의 크기가 클 때 발생합니다. 다음의 명령어로 다시 구동해보세요.
+* 해결. 이 문제는 주로 사전 파일의 크기가 클 때 발생합니다. 다음의 명령어로 다시 구동해보세요.
     ```sh
       node --max-old-space-size=4096 ./bin/www
     ```
 
 ## TODO
 * [ ] 새로운 Item 추가 기능
-* [ ] 사전 파일(`.word`) 업로드 기능
+* [x] 사전 파일(`.word`) 업로드 기능
+  * [ ] 임시 디렉토리(`./temp`) 내 파일 삭제
+  * [ ] 파일 업로드 기능 테스트
 * [ ] 포함된 CSS/JS 라이브러리들의 LICESNE 추가
