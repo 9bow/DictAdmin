@@ -333,6 +333,9 @@
             else {
               $("#dictTable").tabulator("addData", [result.data]);
               alert("등록되었습니다.");
+              $("#dictAddItemModalWordInput").val("");
+              $("#dictAddItemModalPosSelect").prop("selectedIndex", 0);
+              $("#dictAddItemModalTfInput").val(0);
             }
           },
           error: function() {
