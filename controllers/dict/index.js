@@ -147,6 +147,34 @@ exports.delItem = function(req, res) {
     });
 };
 
+// Add Item
+exports.addItem = function(req, res) {
+  model.Dict.create({
+    token: req.body.token,
+    pos: req.body.pos,
+    tf: req.body.tf * 1
+  })
+    .then(result => {
+      if (
+        result.dataValues.token === req.body.token &&
+        result.dataValues.pos === req.body.pos &&
+        result.dataValues.tf === req.body.tf * 1
+      ) {
+        res.send({ err: false, success: true, msg: "", data: result.dataValues });
+      } else {
+        res.send({ err: true, success: false, msg: "처리 중 오류가 발생하였습니다." });
+      }
+    })
+    .catch(err => {
+      if (err.name === "SequelizeUniqueConstraintError") {
+        res.send({ err: true, success: false, msg: "해당 단어/품사는 이미 등록되어 있습니다." });
+      } else {
+        res.send({ err: true, success: false, msg: err.name });
+      }
+    });
+};
+
+// Export Dict Table to File
 exports.exportToFile = function(req, res) {
   try {
     var tmpFilename = "./tmpDict.word";
@@ -180,6 +208,7 @@ exports.exportToFile = function(req, res) {
   }
 };
 
+// Import Dict Table from File
 exports.ImportFromFile = function(req, res) {
   // Truncate Dict Table
   model.Dict.destroy({

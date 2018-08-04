@@ -20,6 +20,7 @@ router.get("/list", dict.getList);
 router.put("/:id/tf", dict.updateTf);
 router.put("/:id/pos", dict.updatePos);
 router.delete("/:id", dict.delItem);
+router.post("/add", dict.addItem);
 router.get("/download", dict.exportToFile);
 router.post("/upload", dict.ImportFromFile);
 

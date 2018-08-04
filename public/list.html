@@ -112,7 +112,7 @@
                 </div>
                 <div class="pull-right">
                   <div class="btn-group">
-                      <button id="dictNewItemBtn" type="button" class="btn btn-danger btn-flat"><i class="fa fa-plus-circle"></i> 등록</button>
+                      <button id="dictAddItemBtn" type="button" class="btn btn-danger btn-flat"><i class="fa fa-plus-circle"></i> 등록</button>
                   </div>
                 </div>
 
@@ -141,19 +141,20 @@
 </div>
 <!-- ./wrapper -->
 
-<div id="dictUploadModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dictUploadModal">
+<!-- Modal - Upload Dict File -->
+<div id="dictUploadModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dictUploadModalTitle">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="dictUploadModal">사전 파일 올리기</h4>
+        <h4 class="modal-title" id="dictUploadModalTitle">사전 파일 올리기</h4>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-md-12">
             <p>아래 버튼을 눌러 사전 파일을 올려주세요.</p>
             <p><i class="fa fa-exclamation-triangle text-red"></i> 주의하세요! 기존 사전은 <b class="text-red">모두 삭제</b>됩니다. 기존 사전을 반드시 <a href="/dict/download"><i class="fa fa-download"></i> 내려받기</a> 해주세요.</p>
-            <input id="dictUploadFile" type="file" name="userDict" data-url="/dict/upload" title="사전 파일을 선택해주세요.">
+            <input id="dictUploadFile" type="file" name="userDict" title="사전 파일을 선택해주세요.">
           </div>
         </div>
       </div>
@@ -164,7 +165,46 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<!-- /Modal - Upload Dict File -->
 
+<!-- Modal - Add Item -->
+<div id="dictAddItemModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dictAddItemModalTitle">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="dictAddItemModalTitle">새로운 단어 등록하기</h4>
+      </div>
+      <form role="form">
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>단어</label>
+              <input type="text" id="dictAddItemModalWordInput" name="token" class="form-control " style="width: 100%;" />
+            </div>
+            <div class="form-group">
+              <label>품사</label>
+              <select id="dictAddItemModalPosSelect" name="pos" class="form-control " style="width: 100%;">
+                <option value="">--- 품사를 선택해주세요 ---</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>빈도</label>
+              <input type="text" id="dictAddItemModalTfInput" name="tf" class="form-control" value="0" style="width: 100%;" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">닫기</button>
+        <button id="dictAddItemBtnInModal" type="button" class="btn btn-primary btn-flat">등록하기</button>
+      </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- /Modal - Add Item -->
 
 <!-- jQuery 3 -->
 <script src="/libs/jquery/jquery.min.js"></script>
@@ -195,6 +235,7 @@
   };
 
   $(function () {
+    // Dict File Upload
     $("#dictUploadModal").on("hidden.bs.modal", function() {
       $("#dictUploadBtnInModal").prop("disabled", true);
       $("#dictUploadMesgInModal").text("");
@@ -207,6 +248,9 @@
 
     $("#dictUploadFile").fileupload({
       dataType: "json",
+      autoUpload: false,
+      replaceFileInput:false,
+      url: "/dict/upload",
       add: function (e, data) {
         $("#dictUploadBtnInModal").prop("disabled", false).text("올리기")
                                   .click(function () {
@@ -220,10 +264,86 @@
       }
     });
 
-    $("#dictNewItemBtn").on("click", function() {
-      console.log("dictNewItemBtn Clicked");
+
+    // Add Dict Item
+    $("#dictAddItemModal").on("hidden.bs.modal", function() {
+      $("#dictAddItemModalWordInput").val("");
+      $("#dictAddItemModalPosSelect").prop("selectedIndex", 0);
+      $("#dictAddItemModalTfInput").val(0);
     });
 
+    $("#dictAddItemBtn").on("click", function() {
+      $("#dictAddItemModal").modal("show");
+    });
+
+    $("#dictAddItemModalTfInput").on("keypress keyup blur",function (event) {
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    $("#dictAddItemBtnInModal").on("click", function() {
+      var passWord = false;
+      var passPos = false;
+      var passTf = false;
+
+      if ($("#dictAddItemModalWordInput").val() === "") {
+        $("#dictAddItemModalWordInput").parent().addClass("has-error");
+        passWord = false;
+      }
+      else {
+        $("#dictAddItemModalWordInput").parent().removeClass("has-error");
+        passWord = true;
+      }
+
+      if ($("#dictAddItemModalPosSelect").val() === "" || !($("#dictAddItemModalPosSelect").val() in posTable)) {
+        $("#dictAddItemModalPosSelect").parent().addClass("has-error");
+        passPos = false;
+      }
+      else {
+        $("#dictAddItemModalPosSelect").parent().removeClass("has-error");
+        passPos = true;
+      }
+
+      if ($("#dictAddItemModalTfInput").val() === "" || $("#dictAddItemModalTfInput").val() == 0
+          || !$.isNumeric($("#dictAddItemModalTfInput").val()) || $("#dictAddItemModalTfInput").val() < 0) {
+        $("#dictAddItemModalTfInput").parent().addClass("has-error");
+        passTf = false;
+      }
+      else {
+        $("#dictAddItemModalTfInput").parent().removeClass("has-error");
+        passTf = true;
+      }
+
+      if (passWord && passPos && passTf) {
+        $.ajax({
+          method: "POST",
+          url: "/dict/add",
+          data: {
+            token: $("#dictAddItemModalWordInput").val(),
+            pos: $("#dictAddItemModalPosSelect").val(),
+            tf: $("#dictAddItemModalTfInput").val()
+           },
+          dataType: "json",
+          success: function (result) {
+            if (result.err) {
+              alert(result.msg + " (ERR_DICT_E_ADD_0)");
+            }
+            else {
+              $("#dictTable").tabulator("addData", [result.data]);
+              alert("등록되었습니다.");
+            }
+          },
+          error: function() {
+            alert("등록 중 에러가 발생했습니다. (ERR_DICT_E_ADD_1)");
+          }
+        });
+      }
+    });
+
+
+    // POS Table
     var getPosTable = function() {
       var deferred = $.Deferred();
       $.get({
@@ -241,7 +361,18 @@
       return deferred.promise();
     }
 
+
     getPosTable().done(function() {
+      // Add Select Options
+      $.each(posTable, function (key, val) {
+        if (key === "") return;
+        $("#dictAddItemModalPosSelect").append($('<option>', {
+          value: key,
+          text : val + "(" + key +")"
+        }));
+      });
+
+      // Draw Dict Table
       $("#dictTable").tabulator({
         ajaxURL: "/dict/list",
         ajaxSorting: true,

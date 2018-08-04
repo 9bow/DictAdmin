@@ -40,13 +40,13 @@ if (!fs.existsSync("./temp")) fs.mkdirSync("./temp");
 ////////////////////////////////////////////////////////////////////////////////
 
 // Truncate All Tables
-Object.keys(model).forEach(modelName => {
-  if (modelName.toLowerCase() !== "sequelize")
-    model[modelName].destroy({
-      where: {},
-      truncate: true
-    });
-});
+// Object.keys(model).forEach(modelName => {
+//   if (modelName.toLowerCase() !== "sequelize")
+//     model[modelName].destroy({
+//       where: {},
+//       truncate: true
+//     });
+// });
 
 ////////////////////////////////////////////////////////////////////////////////
 // Routes
