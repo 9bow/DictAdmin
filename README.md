@@ -1,3 +1,9 @@
+# 신규 버전 안내
+
+### KOMORAN 사전 관리도구는 Java기반으로 재개발되었으며, 최신 버전은 [이 곳](https://github.com/shineware/KOMORANAdmin)에서 확인하실 수 있습니다.
+
+---
+
 ## 개요
 DictAdmin은 [한국어 형태소 분석기 KOMORAN](https://github.com/shin285/KOMORAN)의 사용자 사전을 관리하는 도구입니다.
 
